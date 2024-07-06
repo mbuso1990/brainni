@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      background-color: #007bff;
+      color: white;
+      padding: 1rem;
+      width: 100%;
+      text-align: center;
+      margin: 0;
+    }
+    h2 {
+      color: #333;
+      margin: 1rem 0;
+    }
+    table {
+      width: 80%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    th, td {
+      padding: 1rem;
+      text-align: left;
+    }
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+    tr:hover {
+      background-color: #ddd;
+    }
+    .delete-btn {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .delete-btn:hover {
+      background-color: #c0392b;
+    }
+    @media (max-width: 600px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+      }
+      tr {
+        margin: 0 0 1rem 0;
+      }
+      tr:nth-child(even) {
+        background-color: inherit;
+      }
+      td {
+        border: none;
+        border-bottom: 1px solid #eee;
+        position: relative;
+        padding-left: 50%;
+      }
+      td:before {
+        position: absolute;
+        top: 0;
+        left: 6px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        content: attr(data-label);
+        color: #333;
+        font-weight: bold;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Admin Dashboard</h1>
+  <h2>Total Users: <%= users.length %></h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Registration Date</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% users.forEach(user => { %>
+        <tr>
+          <td data-label="Username"><%= user.username %></td>
+          <td data-label="Email"><%= user.email %></td>
+          <td data-label="Registration Date"><%= user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A' %></td>
+          <td data-label="Action">
+            <button class="delete-btn" onclick="deleteUser('<%= user._id %>')">Delete</button>
+          </td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+  <script>
+    async function deleteUser(userId) {
+      if (confirm('Are you sure you want to delete this user?')) {
+        try {
+          const response = await fetch(`/admin/delete/${userId}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          const data = await response.json();
+          if (data.message) {
+            alert(data.message);
+            location.reload(); // Reload the page to update the user list
+          } else {
+            alert('Error deleting user');
+          }
+        } catch (err) {
+          console.error('Error:', err);
+          alert('Error deleting user');
+        }
+      }
+    }
+  </script>
+</body>
+</html>
